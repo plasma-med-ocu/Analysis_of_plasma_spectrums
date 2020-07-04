@@ -11,12 +11,13 @@ The mean of an interval over an emission line and the mean of an ajacent backgro
 The mean of the background is subtracted from the emission line mean. This is performed for pre defined
 intervals of multiple emission lines of the relevant elements. The resulting corrected mean is used as the line intensity.
 
-2)
+2)  2020_02_21_CurveFit_Auswertung_Final
 
 The background is approximated by a spline fit through the local minima in between the emission lines.
 The approximate background is then substracted from the spectrum.
 Neighbouring emission lines are the fitted with overlapping Voight profiles for increased accuracy.
-The same emission lines as in approch 1) are used here as well. The sum over the fitted Voigt profile is used as th line intensity.
+The same emission lines as in approch 1) are used here as well. The sum over the fitted Voigt profile is used as the
+line intensity. The function uses multiprocessing Pool to speed up the processing.
 
 
 The line intensities calculated after 1) and 2) are used as the input data for the SVM chain-cassefieres in:
