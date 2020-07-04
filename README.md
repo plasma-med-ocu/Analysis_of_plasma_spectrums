@@ -5,7 +5,7 @@ Software to analyse emission lines in an plasma with the goal to identify the el
 Two seperate ways of processing the plasma spectrum are implemented. After processing,
 the resulting data is classified via a SVM chain-classifier.
 
-1)
+1)  2020_02_21_ROI_Auswertung_Final
 
 The mean of an interval over an emission line and the mean of an ajacent background radiation intervall are calculated.
 The mean of the background is subtracted from the emission line mean. This is performed for pre defined
