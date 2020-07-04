@@ -24,3 +24,8 @@ The line intensities calculated after 1) and 2) are used as the input data for t
 It can be expected in the samples that multiple elements are in the plasma.
 This means that the classification problem is a multilabel multiclass one.
 the classification of the two approches are done in 2020_02_21_ROI_MLTSVM.
+
+
+Additionnaly this repository containes the ROI_picker. A program implementet in TKinter that displayes the start and end boundaries
+of the ROIs and their backgrounds. This is displayed over a measurend spectrum. The programm lets the user edit, add and delete ROIs
+with a GUI and mouse clicks.
