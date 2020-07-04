@@ -20,4 +20,7 @@ The same emission lines as in approch 1) are used here as well. The sum over the
 line intensity. The function uses multiprocessing Pool to speed up the processing.
 
 
-The line intensities calculated after 1) and 2) are used as the input data for the SVM chain-cassefieres in:
+The line intensities calculated after 1) and 2) are used as the input data for the SVM chain-cassefieres.
+It can be expected in the samples that multiple elements are in the plasma.
+This means that the classification problem is a multilabel multiclass one.
+the classification of the two approches 1)and 2) are done in 2020_02_21_ROI_MLTSVM (1)) and ..... (2)).
