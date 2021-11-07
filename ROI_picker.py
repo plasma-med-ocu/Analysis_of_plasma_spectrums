@@ -39,10 +39,10 @@ global df_nist
 df_nist = False
 global nist
 nist = {}
-global spektrum_df
-spektrum_df = False
-global H_spektrum_df
-H_spektrum_df = False
+global Spectrum_df
+Spectrum_df = False
+global H_Spectrum_df
+H_Spectrum_df = False
 global lines
 lines = []
 global texts
@@ -50,7 +50,7 @@ texts = []
 global rois
 rois = []
 global header
-header = 'ROI-Name                  ; Start Auslesebereich ; Ende Auslesebereich  ; Start Integration    ; Ende Integration     ; min                  ; max    '
+header = 'ROI-Name                  ; Start Auslesebereich ; End Auslesebereich  ; Start Integration    ; End Integration     ; min                  ; max    '
 global axrois
 axrois = {}
 global marked
@@ -99,7 +99,7 @@ def show_nist(f, a, df_, elem, ionstate, rel):
     global texts
     global df_nist
     if not isinstance(df_nist, pd.DataFrame):
-        err = 'Datei der NIST ASD Datenbank einlesen!'
+        err = 'Read in the file of the NIST ASD Database!'
         messagebox.showerror('Error', err)
         return
     if elem == '':
@@ -112,22 +112,22 @@ def show_nist(f, a, df_, elem, ionstate, rel):
         # el = '|'.join([e.strip() for e in elem.split(',')])
         elements = [e.strip() for e in elem.split(',')]
         io = '|'.join([i.strip() for i in ionstate.split(',')])
-        start = float(list(spektrum_df.index)[0])
-        ende = float(list(spektrum_df.index)[-1])
+        start = float(list(Spectrum_df.index)[0])
+        End = float(list(Spectrum_df.index)[-1])
         # con_elem = df_.index.str.contains(el, na=False, regex=True)
-        # df_['Ionisationsgrad'].astype(str, inplace=True)
+        # df_['Degree of ionization'].astype(str, inplace=True)
         df_['Rel. Int.'].astype(float, inplace=True)
         df_e = df_.loc[elements,:]
-        con_ion = df_e['Ionisationsgrad'].astype(str).str.contains(
+        con_ion = df_e['Degree of ionization'].astype(str).str.contains(
                 io, na=False, regex=True)
         nist = df_e[(con_ion)
                    & (df_e['Ritz Wavelength Vac (nm)'] >= start)
-                   & (df_e['Ritz Wavelength Vac (nm)'] <= ende)
+                   & (df_e['Ritz Wavelength Vac (nm)'] <= End)
                    & (df_e['Rel. Int.'] > float(rel))]
 # =============================================================================
 #         nist = df_[(con_elem) & (con_ion)
 #                    & (df_['Ritz Wavelength Vac (nm)'] >= start)
-#                    & (df_['Ritz Wavelength Vac (nm)'] <= ende)
+#                    & (df_['Ritz Wavelength Vac (nm)'] <= End)
 #                    & (df_['Rel. Int.'] > float(rel))]
 # =============================================================================
         if lines:
@@ -150,10 +150,10 @@ def show_nist(f, a, df_, elem, ionstate, rel):
             for jx, wl_nist in enumerate(wls):
                 lines[i].append([])
                 texts[i].append([])
-                wl = spektrum_df.index.get_loc(
+                wl = Spectrum_df.index.get_loc(
                         float(wl_nist), method='nearest')
-                height = spektrum_df.at[
-                        list(spektrum_df.index)[wl], 'mean']
+                height = Spectrum_df.at[
+                        list(Spectrum_df.index)[wl], 'mean']
                 lines[i][jx] = plt.vlines(x=wl_nist,
                                            ymin=height+10, ymax=height+300)
                 s = ix[1] + ' {:.4f}'.format(wl_nist)
@@ -186,23 +186,23 @@ def spa_b(f, a):
     filename = spa_paths[0].split(r'\\')[-1]
     spa_entry.delete(0, tk.END)
     spa_entry.insert(0, filename)
-    global spektrum_df
-    if not isinstance(spektrum_df, pd.DataFrame):
-        spektrum_df = False
-    spektrum_df = read_spas(spa_paths)
-    spektrum_df['mean'] = spektrum_df.mean(axis=1)
+    global Spectrum_df
+    if not isinstance(Spectrum_df, pd.DataFrame):
+        Spectrum_df = False
+    Spectrum_df = read_spas(spa_paths)
+    Spectrum_df['mean'] = Spectrum_df.mean(axis=1)
     global pl_sp
     if pl_sp:
         for elem in pl_sp:
             elem.remove()
         #pl_sp.remove()
-    pl_sp = a.plot(spektrum_df.index, spektrum_df['mean'], 'b', zorder=10)
+    pl_sp = a.plot(Spectrum_df.index, Spectrum_df['mean'], 'b', zorder=10)
     global spec_max
-    ma = spektrum_df['mean'].max()+2000
+    ma = Spectrum_df['mean'].max()+2000
     if ma >= spec_max:
         spec_max = ma
     plt.ylim(0.0,spec_max)
-    plt.xlim(spektrum_df.index.min()-10, spektrum_df.index.max()+10)
+    plt.xlim(Spectrum_df.index.min()-10, Spectrum_df.index.max()+10)
     plt.grid(True)
     f.canvas.draw()
     toolbar.update()
@@ -229,23 +229,23 @@ def H_spa_b(f, a, add=True, clear=False):
         H_spa_entry.delete(0, tk.END)
         H_spa_entry.insert(0, filename)
     if not add:
-        global H_spektrum_df
-        if not isinstance(H_spektrum_df, pd.DataFrame):
-            H_spektrum_df = False
-        H_spektrum_df = read_spas(H_spa_paths)
-        H_spektrum_df['mean'] = H_spektrum_df.mean(axis=1)
+        global H_Spectrum_df
+        if not isinstance(H_Spectrum_df, pd.DataFrame):
+            H_Spectrum_df = False
+        H_Spectrum_df = read_spas(H_spa_paths)
+        H_Spectrum_df['mean'] = H_Spectrum_df.mean(axis=1)
         if pl_sp_H:
             print(pl_sp_H)
             for elem in pl_sp_H:
                 elem.remove()
             #pl_sp.remove()
-        pl_sp_H = a.plot(H_spektrum_df.index, H_spektrum_df['mean'], 'orange', zorder=0)
+        pl_sp_H = a.plot(H_Spectrum_df.index, H_Spectrum_df['mean'], 'orange', zorder=0)
         global spec_max
-        ma = H_spektrum_df['mean'].max()+2000
+        ma = H_Spectrum_df['mean'].max()+2000
         if ma >= spec_max:
             spec_max = ma
         plt.ylim(0.0, spec_max)
-        plt.xlim(H_spektrum_df.index.min()-10, H_spektrum_df.index.max()+10)
+        plt.xlim(H_Spectrum_df.index.min()-10, H_Spectrum_df.index.max()+10)
         plt.grid(True)
         f.canvas.draw()
         toolbar.update()
@@ -264,11 +264,11 @@ def plot_rois(f, rois):
     for p in list(rois.index.str.strip().values):
         wa = rois.at[p, 'Start Integration']
         pa = plt.axvline(x=wa, color='r', lw=1, ls='-.', alpha=0.1)
-        wb = rois.at[p, 'Ende Integration']
+        wb = rois.at[p, 'End Integration']
         pb = plt.axvline(x=wb, color='r', lw=1, ls='-.', alpha=0.1)
         wc = rois.at[p, 'Start Integration BG']
         pc = plt.axvline(x=wc, color='k', lw=1, ls='-.', alpha=0.1)
-        wd = rois.at[p, 'Ende Integration BG']
+        wd = rois.at[p, 'End Integration BG']
         pd = plt.axvline(x=wd, color='k', lw=1, ls='-.', alpha=0.1)
         axrois[p] = [[pa, pb, pc, pd], [wa,wb,wc,wd]]
     f.canvas.draw()
@@ -282,8 +282,8 @@ def cfg_b(f):
     if os.path.getsize(cfg_path) == 0:
         global header
         cols = [s.strip() for s in header.split(';')]
-        cols += ['Start Auslesebereich BG', 'Ende Auslesebereich BG',
-                 'Start Integration BG', 'Ende Integration BG']
+        cols += ['Start Auslesebereich BG', 'End Auslesebereich BG',
+                 'Start Integration BG', 'End Integration BG']
         rois = pd.DataFrame(columns=cols)
         rois.set_index('ROI-Name', inplace=True)
         return
@@ -310,14 +310,14 @@ def cfg_b(f):
                 ROI['{}'.format(peak)] = bg
     rois.set_index('ROI-Name', inplace=True)
     rois['Start Auslesebereich BG'] = np.zeros(len(rois))
-    rois['Ende Auslesebereich BG'] = np.zeros(len(rois))
+    rois['End Auslesebereich BG'] = np.zeros(len(rois))
     rois['Start Integration BG'] = np.zeros(len(rois))
-    rois['Ende Integration BG'] = np.zeros(len(rois))
+    rois['End Integration BG'] = np.zeros(len(rois))
     for peak in ROI.keys():
         rois.loc[peak , 'Start Auslesebereich BG'] = rois.at[ROI[peak], 'Start Auslesebereich']
-        rois.loc[peak , 'Ende Auslesebereich BG'] = rois.at[ROI[peak], 'Ende Auslesebereich']
+        rois.loc[peak , 'End Auslesebereich BG'] = rois.at[ROI[peak], 'End Auslesebereich']
         rois.loc[peak , 'Start Integration BG'] = rois.at[ROI[peak], 'Start Integration']
-        rois.loc[peak , 'Ende Integration BG'] = rois.at[ROI[peak], 'Ende Integration']
+        rois.loc[peak , 'End Integration BG'] = rois.at[ROI[peak], 'End Integration']
     for bg in ROI.values():
         try:
             rois.drop(labels=bg, axis=0, inplace=True)
@@ -436,7 +436,7 @@ def change_alpha(f, marked, string):
         d = plt.axvline(x=wls[3], color='k', lw=1, ls='-.', alpha=0.1)
         axrois[marked] = [[a, b, c, d], wls]
     else:
-        print('change_alpha Fehler')
+        print('change_alpha error')
     f.canvas.draw()
     return
 
@@ -444,26 +444,26 @@ def change_alpha(f, marked, string):
 def edit_roi(f):
     global axrois
     global rois
-    global spektrum_df
-    global neu
+    global Spectrum_df
+    global new
     global marked
     ROI = ROI_entry.get()
     if ROI == '':
-        err = 'Benennung für die ROI eingeben'
+        err = 'Enter name for the ROI'
         messagebox.showerror('Error', err)
         return
     peak_start = float(label11.get())
     peak_end = float(label22.get())
     bg_start = float(label33.get())
     bg_end = float(label44.get())
-    if not isinstance(spektrum_df, pd.DataFrame):
-        err = """Es muss eine Spektrums-Datei (.spa) eingelesen sein, damit an dieser Stelle den eingelesenen Wellenlängen der Pixel auf der CCD-Zeile zugewiesen werden kann."""
+    if not isinstance(Spectrum_df, pd.DataFrame):
+        err = """A Spectrums file (.spa) must be read in, so that at this point the wavelengths read in can be assigned to the pixel on the CCD line."""
         messagebox.showerror("Error", err)
         return
-    peak_start_ix = spektrum_df.index.get_loc(float(peak_start), method='nearest')
-    peak_end_ix = spektrum_df.index.get_loc(float(peak_end), method='nearest')
-    bg_start_ix = spektrum_df.index.get_loc(float(bg_start), method='nearest')
-    bg_end_ix = spektrum_df.index.get_loc(float(bg_end), method='nearest')
+    peak_start_ix = Spectrum_df.index.get_loc(float(peak_start), method='nearest')
+    peak_end_ix = Spectrum_df.index.get_loc(float(peak_end), method='nearest')
+    bg_start_ix = Spectrum_df.index.get_loc(float(bg_start), method='nearest')
+    bg_end_ix = Spectrum_df.index.get_loc(float(bg_end), method='nearest')
     ma = '0'
     mi = '0'
     fill_list = [peak_start_ix, peak_end_ix, peak_start, peak_end, mi, ma,
@@ -472,13 +472,13 @@ def edit_roi(f):
     if marked != ROI and marked != '':
         rem(marked, drop=True)
         marked = ''
-        print('Hier!')
+        print('Here!')
     else:
-        print('Dort!')
+        print('There!')
         rem()
-    print('Hallo!')
+    print('Hello!')
     plot_rois(f, rois)
-    neu = False
+    new = False
     return
 
 
@@ -554,14 +554,14 @@ def highlight(f, string):
             marked = roi[jx]
             change_alpha(f, marked, 'up')
             roi_insert(marked)
-    elif string == 'neu':
-        neu = True
+    elif string == 'new':
+        new = True
         roi_insert('None')
         if marked != '':
             change_alpha(f, marked, 'down')
             marked = ''
         marked = simpledialog.askstring(
-                title = "ROI-Name", prompt = "Gebe den Namen der ROI an:")
+                title = "ROI-Name", prompt = "Specify the name of the ROI:")
         axrois[marked] = [['', '', '', ''], ['', '', '', '']]
         ROI_entry.config(state='normal')
         ROI_entry.delete(0, tk.END)
@@ -639,7 +639,7 @@ form.geometry('1450x580')
 
 tab_parent = ttk.Notebook(form)
 tab1 = ttk.Frame(tab_parent)
-tab_parent.add(tab1, text='Spektrum')
+tab_parent.add(tab1, text='Spectrum')
 
 f = plt.figure(figsize=(10, 5), dpi=100)
 a = f.add_subplot(111)
@@ -654,45 +654,45 @@ toolbarFrame = ttk.Frame(tab1)
 toolbarFrame.grid(row=22, column=1)
 toolbar = NavigationToolbar2Tk(canvas, toolbarFrame)
 
-spa_label = tk.Label(tab1, text='Spektrum: ')
+spa_label = tk.Label(tab1, text='Spectrum: ')
 spa_label.grid(row=1, column=7)
-spa_button = ttk.Button(tab1, text='Datei suchen', command=lambda: spa_b(f, a))
+spa_button = ttk.Button(tab1, text='Search file', command=lambda: spa_b(f, a))
 spa_button.grid(row=1, column=9)
 spa_entry = tk.Entry(tab1, width=20)
 spa_entry.grid(row=1, column=8)
-spa_entry.insert(0, 'spa Datei einfügen')
+spa_entry.insert(0, 'Insert spa file')
 
-H_spa_label = tk.Label(tab1, text='Hintergrund-Spektrum: ')
+H_spa_label = tk.Label(tab1, text='Background Spectrum: ')
 H_spa_label.grid(row=2, column=7)
-H_spa_button = ttk.Button(tab1, text='Datei hinzufügen', command=lambda: H_spa_b(f, a, add=True))
+H_spa_button = ttk.Button(tab1, text='Add file', command=lambda: H_spa_b(f, a, add=True))
 H_spa_button.grid(row=2, column=9)
-H_spa_button2 = ttk.Button(tab1, text='berechnen', command=lambda: H_spa_b(f, a, add=False))
+H_spa_button2 = ttk.Button(tab1, text='Calculate', command=lambda: H_spa_b(f, a, add=False))
 H_spa_button2.grid(row=3, column=9)
-H_spa_button3 = ttk.Button(tab1, text='löschen', command=lambda: H_spa_b(f, a, clear=True))
+H_spa_button3 = ttk.Button(tab1, text='delete', command=lambda: H_spa_b(f, a, clear=True))
 H_spa_button3.grid(row=3, column=10)
 H_spa_entry = tk.Entry(tab1, width=20)
 H_spa_entry.grid(row=2, column=8)
-H_spa_entry.insert(0, 'spa Datei einfügen')
+H_spa_entry.insert(0, 'Insert spa file')
 
-nist_label = tk.Label(tab1, text='NIST ASD Datenbank: ')
+nist_label = tk.Label(tab1, text='NIST ASD Database: ')
 nist_label.grid(row=4, column=7)
-nist_button = ttk.Button(tab1, text='Datei suchen',
+nist_button = ttk.Button(tab1, text='Search file',
                          command=lambda: nist_b(
                                  f, a, elements.get(), ionstate.get(), rel_int.get()))
 nist_button.grid(row=4, column=9)
 nist_entry = tk.Entry(tab1, width=20)
 nist_entry.grid(row=4, column=8)
-nist_entry.insert(0, 'ASD Datei einfügen')
+nist_entry.insert(0, 'Insert ASD file')
 
-cfg_label = tk.Label(tab1, text='ROI Datei: ')
+cfg_label = tk.Label(tab1, text='ROI file: ')
 cfg_label.grid(row=5, column=7)
-cfg_button = ttk.Button(tab1, text='Datei suchen', command=lambda: cfg_b(f))
+cfg_button = ttk.Button(tab1, text='Search file', command=lambda: cfg_b(f))
 cfg_button.grid(row=5, column=9)
 cfg_entry = tk.Entry(tab1, width=20)
 cfg_entry.grid(row=5, column=8)
-cfg_entry.insert(0, 'cfg Datei einfügen')
+cfg_entry.insert(0, 'Insert cfg file')
 
-elem = tk.Label(tab1, text='Elemente: ')
+elem = tk.Label(tab1, text='Elements: ')
 elem.grid(row=7, column=7)
 elements = tk.Entry(tab1, width=20)
 elements.grid(row=7, column=8)
@@ -703,12 +703,12 @@ ionstate = tk.Entry(tab1, width=20)
 ionstate.grid(row=8, column=8)
 ionstate.insert(0, '1, 2')
 
-relint = tk.Label(tab1, text='relative Intensität: ')
+relint = tk.Label(tab1, text='Relative intensity: ')
 relint.grid(row=9, column=7)
 rel_int = tk.Entry(tab1, width=20)
 rel_int.grid(row=9, column=8)
 rel_int.insert(0, 0)
-apply_button = ttk.Button(tab1, text='Anwenden',
+apply_button = ttk.Button(tab1, text='Apply',
                           command=lambda: show_nist(f, a, df_nist,
                                                     elements.get(),
                                                     ionstate.get(),
@@ -722,9 +722,9 @@ left.grid(row=10, column=7)
 right = ttk.Button(tab1, text='->',
                           command=lambda: highlight(f, 'right'))
 right.grid(row=10, column=8)
-neu = ttk.Button(tab1, text='neu',
-                          command=lambda: highlight(f, 'neu'))
-neu.grid(row=10, column=9)
+new = ttk.Button(tab1, text='new',
+                          command=lambda: highlight(f, 'new'))
+new.grid(row=10, column=9)
 
 
 
@@ -762,13 +762,13 @@ label44.grid(row=16, column=8)
 label44.config(state='disabled')
 
 
-clear_button = ttk.Button(tab1, text='ROI löschen', command=lambda: rem())
+clear_button = ttk.Button(tab1, text='ROI delete', command=lambda: rem())
 clear_button.grid(row=17, column=7)
 
-save_button = ttk.Button(tab1, text='ROI speichern', command=lambda: edit_roi(f))
+save_button = ttk.Button(tab1, text='Save ROI', command=lambda: edit_roi(f))
 save_button.grid(row=17, column=8)
 
-save_df_button = ttk.Button(tab1, text='cfg Datei speichern',
+save_df_button = ttk.Button(tab1, text='Save cfg file',
                             command=lambda: file_save())
 save_df_button.grid(row=17, column=9)
 
