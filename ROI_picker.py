@@ -14,7 +14,8 @@ import ipywidgets as wdg
 #matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 import matplotlib
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.backends._backend_tk import NavigationToolbar2Tk
 from matplotlib.figure import Figure
 import tkinter as tk
 from tkinter import ttk
@@ -645,13 +646,13 @@ a = f.add_subplot(111)
 # a.plot([1, 2, 3, 4, 5, 6, 7, 8], [5, 6, 1, 3, 8, 9, 3, 5])
 
 canvas = FigureCanvasTkAgg(f, tab1)
-canvas.show()
+canvas.draw()
 canvas.get_tk_widget().grid(row=1, column=1, columnspan=6, rowspan=20)
 
 
 toolbarFrame = ttk.Frame(tab1)
 toolbarFrame.grid(row=22, column=1)
-toolbar = NavigationToolbar2TkAgg(canvas, toolbarFrame)
+toolbar = NavigationToolbar2Tk(canvas, toolbarFrame)
 
 spa_label = tk.Label(tab1, text='Spektrum: ')
 spa_label.grid(row=1, column=7)
